@@ -1,0 +1,616 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RobyMarket Integration API",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localost:9000",
+      "description": "Local"
+    },
+    {
+      "url": "https://apidev.getenergy24.ru/v1",
+      "description": "dev server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Внешнее Api",
+      "description": "партнер -> api-service"
+    },
+    {
+      "name": "Запросы из api-service к gete-backend",
+      "description": "Эндпоинты для gete-backend"
+    },
+    {
+      "name": "Запросы из gete-backend к api-service",
+      "description": "Эндпоинты для api-service"
+    },
+    {
+      "name": "Запросы от нас к партнеру",
+      "description": "api-service -> партнер"
+    }
+  ],
+  "paths": {
+    "/public/map": {
+      "get": {
+        "tags": [
+          "Внешнее Api"
+        ],
+        "summary": "Партнер получает от нас карту для станций",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "токен авторизации",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "37AV9590006BF252F707:jZNOcbfWmD/A/f3hSvVzXZjM2HU="
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Location markers list for map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/map"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unautorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/sessions": {
+      "get": {
+        "tags": [
+          "Внешнее Api"
+        ],
+        "summary": "Партнер получает от нас список сессий",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "токен авторизации",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "37AV9590006BF252F707:jZNOcbfWmD/A/f3hSvVzXZjM2HU="
+          },
+          {
+            "name": "statusCode",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список активных сессий",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sessions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unautorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Внешнее Api"
+        ],
+        "summary": "Партнер создает у нас сессию",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "токен авторизации",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "37AV9590006BF252F707:jZNOcbfWmD/A/f3hSvVzXZjM2HU="
+          }
+        ],
+        "requestBody": {
+          "description": "Данные для открытия сессии",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sessionCreationParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Данные открытой сессии",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unautorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nof found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Other error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partner-services/map/{partnerId}": {
+      "get": {
+        "tags": [
+          "Запросы из api-service к gete-backend"
+        ],
+        "summary": "Карта для станций",
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Location markers list for map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/map"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partner-services/sessions/{partnerId}": {
+      "get": {
+        "tags": [
+          "Запросы из api-service к gete-backend"
+        ],
+        "summary": "Список активных сессий партнера",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number",
+              "example": 1
+            }
+          },
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список активных сессий",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sessions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "некорретный partnerId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Запросы из gete-backend к api-service"
+        ],
+        "summary": "Оповещаем о завершении сессии",
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Данные для открытия сессии",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/session"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Запрос о завершении сессии внешнему клиенту успешен"
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Сессия / партнер не найдены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Запросы из api-service к gete-backend"
+        ],
+        "summary": "Создаем сессию",
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Данные для открытия сессии",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sessionCreationParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Данные о закрытой сессии",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client_callback_endpoint": {
+      "put": {
+        "tags": [
+          "Запросы от нас к партнеру"
+        ],
+        "summary": "Оповещаем о завершении сессии",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "токен авторизации",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "37AV9590006BF252F707:jZNOcbfWmD/A/f3hSvVzXZjM2HU="
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/session"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Запрос о завершении сессии внешнему клиенту успешен"
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Сессия / партнер не найдены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "map": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/mapMarker"
+        }
+      },
+      "mapMarker": {
+        "type": "object",
+        "properties": {
+          "locationName": {
+            "type": "string",
+            "example": "Название"
+          },
+          "locationAddress": {
+            "type": "string",
+            "example": "Адрес"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 55.765256
+          },
+          "longitude": {
+            "type": "number",
+            "example": 37.628042
+          },
+          "startTime": {
+            "type": "string",
+            "example": "2020-08-17T06:00:04.404Z"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "2020-08-17T12:00:04.404Z"
+          },
+          "guide": {
+            "type": "string",
+            "example": "Гайд"
+          },
+          "stationId": {
+            "type": "string",
+            "example": "GEYH082201651172"
+          },
+          "stationShortCode": {
+            "type": "string",
+            "example": "5610"
+          },
+          "stationModel": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "emptySlotsCount": {
+            "type": "integer",
+            "example": 8
+          },
+          "availableDevicesCount": {
+            "type": "integer",
+            "example": 8
+          }
+        }
+      },
+      "sessions": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/session"
+        }
+      },
+      "session": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "number",
+            "example": 255
+          },
+          "deviceId": {
+            "type": "string",
+            "example": "4745594821103856"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2022-08-04T10:54:05.233Z"
+          },
+          "endDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "startStationId": {
+            "type": "string",
+            "example": "GEYH082201651172"
+          },
+          "endStationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "Статус сессии",
+            "example": 0
+          }
+        }
+      },
+      "sessionCreationParams": {
+        "type": "object",
+        "properties": {
+          "stationId": {
+            "type": "string",
+            "example": "GEYH082201651172"
+          },
+          "stationShortCode": {
+            "type": "string",
+            "example": "7210"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          }
+        }
+      }
+    }
+  }
+}
